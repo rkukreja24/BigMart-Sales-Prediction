@@ -8,8 +8,13 @@ from sklearn.preprocessing import LabelEncoder
 # Now quick model
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
 
 # Load datasets
 train = pd.read_csv('../data/train.csv')
@@ -26,111 +31,185 @@ train.head()
 train.isnull().sum()
 test.isnull().sum()
 
+sns.histplot(train['Item_Outlet_Sales'], kde=True)
+plt.title('Sales Distribution')
+plt.show()
+
+sns.boxplot(data=train, x='Outlet_Type', y='Item_Outlet_Sales')
+
+# We will analyze only the training set
+train['Item_Identifier'].value_counts(normalize = True)
+train['Item_Identifier'].value_counts().plot.hist()
+plt.title('Variants of items available')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(12,6))
+sns.countplot(x='Item_Fat_Content', data=train)
+plt.xticks(rotation=45)
+
+# checking the different items in Item Type
+
+train['Item_Type'].value_counts()
+
+train['Item_Type'].value_counts(normalize = True)
+train['Item_Type'].value_counts().plot.bar()
+plt.title('Different types of item available in the store')
+plt.show()
+
+# checking different types of item in Outlet Type
+
+train['Outlet_Type'].value_counts()
+train['Outlet_Type'].value_counts(normalize = True)
+train['Outlet_Type'].value_counts().plot.bar()
+plt.title('Different types of outlet types in the store')
+plt.show()
+
 for col in train.select_dtypes(include='object'):
     print(col, ":", train[col].unique())
 
-train['Outlet_Age'] = 2025 - train['Outlet_Establishment_Year']
+# combining the train and test dataset
+data = pd.concat([train, test])
+print(data.shape)
 
-# Quick simple filling
-train['Item_Weight'].fillna(train['Item_Weight'].mean(), inplace=True)
-test['Item_Weight'].fillna(test['Item_Weight'].mean(), inplace=True)
+# checking unique values in the columns of train dataset
+data.apply(lambda x: len(x.unique()))
 
-train['Outlet_Size'].fillna(train['Outlet_Size'].mode()[0], inplace=True)
-test['Outlet_Size'].fillna(test['Outlet_Size'].mode()[0], inplace=True)
+data.isnull().sum()
 
-le = LabelEncoder()
-for col in ['Item_Fat_Content', 'Item_Type', 'Outlet_Size', 'Outlet_Location_Type', 'Outlet_Type']:
-    train[col] = le.fit_transform(train[col])
-    test[col] = le.transform(test[col])
+# imputing missing values
 
-X = train.drop(['Item_Identifier', 'Outlet_Identifier', 'Item_Outlet_Sales'], axis=1)
-y = train['Item_Outlet_Sales']
+data['Item_Weight'] = data['Item_Weight'].replace(0, np.NaN)
+data['Item_Weight'].fillna(data['Item_Weight'].mean(), inplace = True)
 
-# Split into train and validation sets (80-20 split)
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+data['Outlet_Size'].fillna(data['Outlet_Size'].mode()[0], inplace = True)
 
-model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
+data['Item_Outlet_Sales'] = data['Item_Outlet_Sales'].replace(0, np.NaN)
+data['Item_Outlet_Sales'].fillna(data['Item_Outlet_Sales'].mode()[0], inplace = True)
 
-# Predict on validation set
-rf_predictions = model.predict(X_val)
+data.isnull().sum()
 
-# Calculate RMSE
-rf_rmse = np.sqrt(mean_squared_error(y_val, rf_predictions))
-print(f'Random Forest RMSE: {rf_rmse}')
+# combining reg, Regular and Low Fat, low fat and, LF
 
-# 1. Fix Fat Content
-train['Item_Fat_Content'] = train['Item_Fat_Content'].replace({0:'LF',1:'Regular',2:'reg', 3:'Low Fat', 4:'low fat'})
-test['Item_Fat_Content'] = test['Item_Fat_Content'].replace({0:'LF',1:'Regular',2:'reg', 3:'Low Fat', 4:'low fat'})
+data['Item_Fat_Content'] = data['Item_Fat_Content'].replace({'LF': 'Low Fat', 'reg': 'Regular', 'low fat': 'Low Fat'})
+data['Item_Fat_Content'].value_counts()
 
-# 2. Replace zero visibility with mean visibility per item
-train.loc[train['Item_Visibility'] == 0, 'Item_Visibility'] = train['Item_Visibility'].mean()
-test.loc[test['Item_Visibility'] == 0, 'Item_Visibility'] = test['Item_Visibility'].mean()
+# determining the operation peroid of a time
 
-# 3. Create Outlet Age
-train['Outlet_Age'] = 2025 - train['Outlet_Establishment_Year']
-test['Outlet_Age'] = 2025 - test['Outlet_Establishment_Year']
+data['Outlet_Years'] = 2013 - data['Outlet_Establishment_Year']
+data['Outlet_Years'].value_counts()
 
-# 4. Create Item Visibility Mean Ratio
-visibility_avg = train.groupby('Item_Identifier')['Item_Visibility'].mean()
-train['Item_Visibility_MeanRatio'] = train.apply(lambda x: x['Item_Visibility']/visibility_avg[x['Item_Identifier']], axis=1)
-test['Item_Visibility_MeanRatio'] = test.apply(lambda x: x['Item_Visibility']/visibility_avg.get(x['Item_Identifier'], 1), axis=1)
+data.apply(LabelEncoder().fit_transform)
 
-# 5. Create Broad Item Categories
-def item_category(x):
-    if x in [4, 15, 6, 10, 1, 5, 7, 8, 9, 11, 13, 16]: # Food-related encoded Item_Type
-        return 'Food'
-    elif x in [12, 14, 17]:
-        return 'Non-Consumable'
-    else:
-        return 'Drinks'
+# Save identifiers
+item_ids = test['Item_Identifier']
+outlet_ids = test['Outlet_Identifier']
 
-train['Item_Category'] = train['Item_Type'].apply(item_category)
-test['Item_Category'] = test['Item_Type'].apply(item_category)
+# one hot encoding
+data = pd.get_dummies(data)
+print(data.shape)
 
-# 6. Label Encode new features
-for col in ['Item_Fat_Content', 'Item_Category']:
-    train[col] = train[col].astype(str)
-    test[col] = test[col].astype(str)
-    le = LabelEncoder()
-    train[col] = le.fit_transform(train[col])
-    test[col] = le.transform(test[col])
+# splitting the data into dependent and independent variables
+x = data.drop('Item_Outlet_Sales', axis = 1)
+y = data.Item_Outlet_Sales
 
-# 7. Final Feature Set
-drop_cols = ['Item_Identifier', 'Outlet_Identifier', 'Outlet_Establishment_Year', 'Item_Type']
-X_train = train.drop(columns=drop_cols + ['Item_Outlet_Sales'])
-y_train = train['Item_Outlet_Sales']
-X_test = test.drop(columns=drop_cols)
+print(x.shape)
+print(y.shape)
 
-# Split the train data into 80% training and 20% validation
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+# splitting the dataset into train and test
+train = data.iloc[:8523,:]
+test = data.iloc[8523:,:]
 
-for col in X_train.columns:
-    if X_train[col].dtype == 'object':
-        le = LabelEncoder()
-        X_train[col] = le.fit_transform(X_train[col])
-        X_val[col] = le.transform(X_val[col])
+print(train.shape)
+print(test.shape)
 
-# Train XGBoost
-xgb = XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=6, random_state=42)
-xgb.fit(X_train, y_train)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3)
 
-# Predict on the validation set
-val_predictions = xgb.predict(X_val)
+print(x_train.shape)
+print(y_train.shape)
+print(x_test.shape)
+print(y_test.shape)
 
-# Calculate RMSE
-rmse = np.sqrt(mean_squared_error(y_val, val_predictions))
-print(f"RMSE: {rmse}")
+# Linear Regression
+LR_model = LinearRegression()
+LR_model.fit(x_train, y_train)
 
+# predicting the  test set results
+y_pred = LR_model.predict(x_test)
+print(y_pred)
 
-# Predict on the test set
-test_predictions = xgb.predict(X_test)
+# finding the mean squared error and variance
+mse = mean_squared_error(y_test, y_pred)
+print('RMSE :', np.sqrt(mse))
+print('Variance score: %.2f' % r2_score(y_test, y_pred))
 
-# Final Submission
+# AdaBoost Regressor
+abr_model= AdaBoostRegressor(n_estimators = 100)
+abr_model.fit(x_train, y_train)
+
+# predicting the test set results
+y_pred = abr_model.predict(x_test)
+
+# RMSE
+mse = mean_squared_error(y_test, y_pred)
+print("RMSE :", np.sqrt(mse))
+
+# XgBoost Regressor
+xbg_model = GradientBoostingRegressor()
+xbg_model.fit(x_train, y_train)
+
+# predicting the test set results
+y_pred = xbg_model.predict(x_test)
+print(y_pred)
+
+# Calculating the root mean squared error
+print("RMSE :", np.sqrt(((y_test - y_pred)**2).sum()/len(y_test)))
+
+# Random Forest Regression
+rf_model = RandomForestRegressor(n_estimators = 100 , n_jobs = -1)
+rf_model.fit(x_train, y_train)
+
+# predicting the  test set results
+y_pred = rf_model.predict(x_test)
+print(y_pred)
+
+# finding the mean squared error and variance
+mse = mean_squared_error(y_test, y_pred)
+print("RMSE :",np.sqrt(mse))
+print('Variance score: %.2f' % r2_score(y_test, y_pred))
+
+print("Result :",rf_model.score(x_train, y_train))
+
+# Decision Tree Regressor
+dt_model = DecisionTreeRegressor()
+dt_model.fit(x_train, y_train)
+
+# predicting the test set results
+y_pred = dt_model.predict(x_test)
+print(y_pred)
+
+print(" RMSE : " , np.sqrt(((y_test - y_pred)**2).sum()/len(y_test)))
+
+# Support vector machine
+svr_model = SVR()
+svr_model.fit(x_train, y_train)
+
+# predicting the x test results
+y_pred = svr_model.predict(x_test)
+
+# Calculating the RMSE Score
+mse = mean_squared_error(y_test, y_pred)
+print("RMSE :", np.sqrt(mse))
+
+# Predict on actual test data (from row 8523 onward)
+final_predictions = xbg_model.predict(x[8523:])
+
+# Prepare the submission dataframe
 submission = pd.DataFrame({
-    'Item_Identifier': test['Item_Identifier'],
-    'Outlet_Identifier': test['Outlet_Identifier'],
-    'Item_Outlet_Sales': test_predictions
+    'Item_Identifier': item_ids,
+    'Outlet_Identifier': outlet_ids,
+    'Item_Outlet_Sales': final_predictions
 })
 
+# Save to CSV
 submission.to_csv('../submission/submission.csv', index=False)

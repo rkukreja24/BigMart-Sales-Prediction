@@ -3,61 +3,66 @@
 ## Motivation
 From the beginning, I was excited about this challenge because predicting real-world retail sales is not just a modeling task — it’s an opportunity to understand customer behavior, product trends, and business operations.
 
-I approached the BigMart Sales Prediction problem with curiosity, rigor, and a lot of enthusiasm to explore how product and outlet features influence sales!
+I approached the BigMart Sales Prediction problem with curiosity, rigor, and enthusiasm to explore how product and outlet features influence sales!
 
 ## Exploratory Data Analysis (EDA)
-I started with deep exploration:
+The journey began with data inspection and visualization:
 
-- Checked data dimensions, types, and missing values.
+- Verified train/test dataset dimensions, feature types, and initial stats.
 
-- Visualized distributions of key variables like Item_Outlet_Sales and relationships with categorical features.
+- Detected and addressed missing values in Item_Weight and Outlet_Size.
 
-- Identified:
+- Visualized key variable distributions such as Item_Outlet_Sales using histograms and boxplots.
 
-    - Missing values in Item_Weight and Outlet_Size
+- Explored categorical variables like Item_Fat_Content, Item_Type, and Outlet_Type.
 
-    - Zero values in Item_Visibility
+- Uncovered inconsistencies (e.g., ‘LF’, ‘low fat’, ‘reg’) in Item_Fat_Content that required standardization.
 
-    - Inconsistencies in Item_Fat_Content
-
-This phase revealed the "story" hidden in the data, which made me even more invested in building meaningful features!
+These insights helped build strong data intuition and revealed how different item and outlet characteristics impact sales.
 
 ## Feature Engineering
-Realizing that "raw" features weren’t enough, I created new variables to capture deeper patterns:
+To enhance predictive power:
 
-- Outlet_Age: Older outlets may have loyal customers and stable sales.
+- Standardized Item_Fat_Content by grouping inconsistent categories.
 
-- Item_Visibility_MeanRatio: Corrected skewed zero visibility.
+- Created Outlet_Years to capture outlet operational duration.
 
-- Item_Category: Grouped items broadly into Food, Drinks, Non-Consumables.
+- Applied Label Encoding and One-Hot Encoding for categorical features.
 
-- Standardized Item_Fat_Content: To fix text inconsistencies (LF, low fat, etc.)
+- Filled missing Item_Weight with the mean and Outlet_Size with the mode.
 
-Each transformation was guided by a simple question in my mind:
-"Can this feature give the model a better understanding of customer buying behavior?"
+- Combined train and test sets for consistent preprocessing and feature transformation.
+
+This thoughtful feature engineering allowed the models to grasp underlying patterns in retail behavior.
 
 ## Modeling Journey
-I adopted a two-phase strategy:
+Tried a range of models to balance accuracy and complexity:
 
-- Phase 1: Quick baseline with RandomForestRegressor → RMSE evaluated.
+- Linear Regression: Simple and interpretable baseline.
 
-- Phase 2: After thorough feature engineering, switched to a more powerful XGBoost Regressor → Achieved improved RMSE.
+- AdaBoost Regressor: Added some boosting power, moderate improvement.
 
-Along the way, I constantly balanced model complexity vs interpretability.
-Every improvement, even a small drop in RMSE, felt like a victory!
+- Gradient Boosting Regressor (XGBoost substitute): Best performing model on test split.
+
+- Random Forest Regressor: Robust results, great at handling overfitting.
+
+- Decision Tree Regressor and SVR: Tested for comparison, but with relatively higher RMSE.
+
+Evaluation Metric: Root Mean Squared Error (RMSE) and R² Score were used consistently to assess performance on the validation set.
+
+The final submission was generated using predictions from the Gradient Boosting Regressor.
 
 ## Reflections & Emotions
-This project was a true rollercoaster 🎢 — sometimes the models didn’t perform as expected, but experimentation and persistence kept me going.
-Every data cleaning step, every feature created, every model tuned — made me realize how impactful small details are in real-world data science.
+This project was a true rollercoaster 🎢. Sometimes models didn’t perform as expected, but experimentation and persistence kept me going. I realized how impactful even the smallest data cleaning steps or feature tweaks can be in real-world data science.
 
-I thoroughly enjoyed the challenge, learned valuable lessons, and felt proud watching my RMSE improve!
+I thoroughly enjoyed the challenge, learned valuable lessons, and felt proud watching my RMSE improve with each iteration!
 
 ## Next Steps (If More Time)
-- Hyperparameter tuning with Optuna/RandomSearchCV.
+- Hyperparameter tuning using Optuna or RandomizedSearchCV.
 
-- Try LightGBM and CatBoost for further boosting.
+- Try more advanced models like LightGBM and CatBoost.
 
-- Advanced feature selection based on SHAP values.
+- Utilize SHAP values for interpretability and advanced feature selection.
 
-“Every dataset has a story — and through this project, I loved being its storyteller.” 📖✨
+"Every dataset has a story — and through this project, I loved being its storyteller." 📖✨
 

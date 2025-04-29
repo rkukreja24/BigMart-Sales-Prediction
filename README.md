@@ -3,54 +3,76 @@
 ## 📖 Project Overview
 This repository contains my solution for the BigMart Sales Prediction challenge.
 
-The objective is to predict sales for various products across different stores, using historical sales data and outlet/product attributes.
-The project focuses on handling missing data, feature engineering, and building powerful regression models to optimize prediction accuracy.
+The goal is to predict product sales across various outlets using historical sales and outlet/product attributes. The workflow spans from initial data inspection to advanced modeling using multiple regression techniques.
 
 ## 🛠️ Repository Structure
 | Folder/File | Description |
 | :--- | :--- |
-| `EDA_and_FeatureEngineering.ipynb` | Complete data exploration and feature engineering notebook. |
-| `Modeling_and_Evaluation.ipynb` | Model building, evaluation, and final prediction script. |
-| `submission.csv` | Final prediction file ready for submission. |
-| `approach_note.pdf` | 1-page document explaining my thought process and modeling approach. |
-| `screenshots/` | Screenshot of the best leaderboard rank and score. |
+| `data\` | Contains train.csv and test.csv datasets. |
+| `notebooks\EDA.ipynb` | Complete data exploration, feature engineering notebook, Model building, evaluation, and final prediction script. |
+| `submission\submission.csv` | Final prediction file ready for submission. |
+| `approach_note.md` | 1-page document explaining my thought process and modeling approach. |
+| `screenshot/` | Screenshot of the best leaderboard rank and score. |
 | `README.md` | This file — overview of the project. |
 
 ## 🔍 Key Steps Followed
-- 📊 Exploratory Data Analysis (EDA)
+- 📊 Data Exploration & Cleaning
 
-    - Identified missing values, distribution patterns, and anomalies.
+    - Assessed missing values and distributions.
+
+    - Visualized categorical and numerical features.
+
+    - Treated outliers and inconsistent values (e.g., Item_Fat_Content).
 
 - 🛠️ Feature Engineering
 
-    - Outlet age, visibility mean ratio, broad item categories, fat content standardization, etc.
+    - Created Outlet_Years from establishment year.
 
-- 🤖 Modeling
+    - Imputed missing values in Item_Weight and Outlet_Size.
 
-    - Started with Random Forest.
+    - Standardized categorical values.
 
-    - Enhanced model with XGBoost Regressor.
+    - One-hot encoded categorical features.
 
-    - Validation via RMSE metric.
+- 🤖 Modeling Techniques Used
+
+    - Linear Regression
+
+    - AdaBoost Regressor
+
+    - Gradient Boosting Regressor
+
+    - Random Forest Regressor
+
+    - Decision Tree Regressor
+
+    - Support Vector Regressor (SVR)
+
+- 📈 Evaluation
+
+    - Models were validated using RMSE and R² score.
+
+    - Gradient Boosting and Random Forest performed best based on evaluation metrics.
 
 - 🚀 Submission
 
-    - Generated final predictions for test dataset.
+    - Predictions on the test set were generated using the best model.
+
+    - Final predictions were exported to submission.csv.
 
 ## 💬 Reflections
-This project was a wonderful blend of technical skills, business understanding, and creative thinking.
-It was incredibly satisfying to watch small improvements in feature engineering translate into measurable gains in prediction accuracy!
+This project deepened my understanding of end-to-end regression modeling and the critical impact of data preprocessing and feature engineering. I experimented with several models to understand their behavior on retail sales data.
 
 “In data science, curiosity and persistence are our greatest assets.” ✨
 
 ## 📚 Technologies Used
-- Python (Pandas, NumPy, Seaborn, Matplotlib)
+- Python: Pandas, NumPy, Matplotlib, Seaborn
 
-- Scikit-learn
+- Scikit-learn: Regression models and preprocessing
 
-- XGBoost
+- XGBoost: Advanced gradient boosting
 
-- Jupyter Notebook
+- Jupyter Notebook: For experimentation and visualization
 
 ## 🙋‍♂️ About Me
 [Ritu Kukreja](https://www.linkedin.com/in/ds-rvk/)
