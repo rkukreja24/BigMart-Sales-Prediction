@@ -8,19 +8,11 @@ The goal is to predict product sales across various outlets using historical sal
 ## 🛠️ Repository Structure
 | Folder/File | Description |
 | :--- | :--- |
-<<<<<<< HEAD
 | `data\` | Contains train.csv and test.csv datasets. |
 | `notebooks\EDA.ipynb` | Complete data exploration, feature engineering notebook, Model building, evaluation, and final prediction script. |
 | `submission\submission.csv` | Final prediction file ready for submission. |
 | `approach_note.md` | 1-page document explaining my thought process and modeling approach. |
 | `screenshot/` | Screenshot of the best leaderboard rank and score. |
-=======
-| `data/` | Contains train.csv and test.csv datasets. |
-| `notebooks/EDA.ipynb` | Complete data exploration, feature engineering notebook, Model building, evaluation, and final prediction script. |
-| `submission/submission.csv` | Final prediction file ready for submission. |
-| `approach_note.md` | 1-page document explaining my thought process and modeling approach. |
-| `screenshots/` | Screenshot of the best leaderboard rank and score. |
->>>>>>> 65cff6b6a9d243b8c91792d1a1dbe81d16d691c8
 | `README.md` | This file — overview of the project. |
 
 ## 🔍 Key Steps Followed
