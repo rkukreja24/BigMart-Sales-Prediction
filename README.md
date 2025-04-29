@@ -9,9 +9,9 @@ The project focuses on handling missing data, feature engineering, and building 
 ## 🛠️ Repository Structure
 | Folder/File | Description |
 | :--- | :--- |
-| `data\` | Contains train.csv and test.csv datasets. |
-| `notebooks\EDA.ipynb` | Complete data exploration, feature engineering notebook, Model building, evaluation, and final prediction script. |
-| `submission\submission.csv` | Final prediction file ready for submission. |
+| `data/` | Contains train.csv and test.csv datasets. |
+| `notebooks/EDA.ipynb` | Complete data exploration, feature engineering notebook, Model building, evaluation, and final prediction script. |
+| `submission/submission.csv` | Final prediction file ready for submission. |
 | `approach_note.md` | 1-page document explaining my thought process and modeling approach. |
 | `screenshots/` | Screenshot of the best leaderboard rank and score. |
 | `README.md` | This file — overview of the project. |
